@@ -1,31 +1,11 @@
-// const express = require('express');
-// const bookRouter = express.Router();
-
-// bookRouter.route('/:bookId')
-// .all((req, res, next) => {
-//     res.statusCode = 200;
-//     res.setHeader('Content-Type', 'text/plain');
-//     next();
-// })
-// .get((req, res) => {
-//     res.end(`This will return book: ${req.params.bookId}'s information`);
-// })
-// .post((req, res) => {
-//     res.end(`This will update book: ${req.params.bookId}'s information`);
-// })
-// .delete((req, res) => {
-//     res.end(`This will delete book: ${req.params.bookId}`);
-// });
-
-// module.exports = bookRouter;
-
 const express = require('express');
 const Book = require('../models/book');
+const authenticate = require('../authenticate');
 
 const bookRouter = express.Router();
 
 bookRouter.route('/:bookId')
-.get((req, res, next) => {
+.get(authenticate.verifyUser,(req, res, next) => {
     Book.findById(req.params.bookId)
     .then(book => {
         res.statusCode = 200;
@@ -34,11 +14,11 @@ bookRouter.route('/:bookId')
     })
     .catch(err => next(err));
 })
-.post((req, res)=>{
+.post(authenticate.verifyUser,(req, res)=>{
     res.statusCode = 403;
     res.end(`POST operation not supported on /books/${req.params.bookId}`);
 })
-.put((req, res, next) => {
+.put(authenticate.verifyUser,(req, res, next) => {
     Book.findByIdAndUpdate(req.params.bookId, {
         $set: req.body
     }, { new: true })
@@ -49,7 +29,7 @@ bookRouter.route('/:bookId')
     })
     .catch(err => next(err));
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser,(req, res, next) => {
     Book.findByIdAndDelete(req.params.bookId)
     .then(response => {
         res.statusCode = 200;
