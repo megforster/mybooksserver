@@ -1,11 +1,13 @@
 const express = require('express');
 const Book = require('../models/book');
 const authenticate = require('../authenticate');
+const cors = require('./cors');
 
 const bookRouter = express.Router();
 
 bookRouter.route('/:bookId')
-.get(authenticate.verifyUser,(req, res, next) => {
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, authenticate.verifyUser,(req, res, next) => {
     Book.findById(req.params.bookId)
     .then(book => {
         res.statusCode = 200;
@@ -14,11 +16,11 @@ bookRouter.route('/:bookId')
     })
     .catch(err => next(err));
 })
-.post(authenticate.verifyUser,(req, res)=>{
+.post(cors.corsWithOptions, authenticate.verifyUser,(req, res)=>{
     res.statusCode = 403;
     res.end(`POST operation not supported on /books/${req.params.bookId}`);
 })
-.put(authenticate.verifyUser,(req, res, next) => {
+.put(cors.corsWithOptions, authenticate.verifyUser,(req, res, next) => {
     Book.findByIdAndUpdate(req.params.bookId, {
         $set: req.body
     }, { new: true })
@@ -29,7 +31,7 @@ bookRouter.route('/:bookId')
     })
     .catch(err => next(err));
 })
-.delete(authenticate.verifyUser,(req, res, next) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser,(req, res, next) => {
     Book.findByIdAndDelete(req.params.bookId)
     .then(response => {
         res.statusCode = 200;

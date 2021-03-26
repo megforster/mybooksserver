@@ -1,11 +1,13 @@
 const express = require('express');
 const Book = require('../models/book');
 const authenticate = require('../authenticate');
+const cors = require('./cors');
 
 const allbooksRouter = express.Router();
 
 allbooksRouter.route('/')
-.get(authenticate.verifyUser,(req, res, next) => {
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, authenticate.verifyUser,(req, res, next) => {
     Book.find({"reviewer":req.user._id})
     .populate('book.reviewer')
     .then(book => {
@@ -15,15 +17,15 @@ allbooksRouter.route('/')
     })
     .catch(err => next(err));
 })
-.post(authenticate.verifyUser,(req, res)=>{
+.post(cors.corsWithOptions, authenticate.verifyUser,(req, res)=>{
     res.statusCode = 403;
     res.end(`POST operation not supported on /allbooks`);
 })
-.put(authenticate.verifyUser,(req, res) => {
+.put(cors.corsWithOptions, authenticate.verifyUser,(req, res) => {
     res.statusCode = 403;
     res.end(`PUT operation not supported on /allbooks`);
 })
-.delete(authenticate.verifyUser,(req, res) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser,(req, res) => {
     res.statusCode = 403;
     res.end(`DELETE operation not supported on /allbooks`);
 });

@@ -12,6 +12,7 @@ const bookRouter = require('./routes/bookRouter');
 const allbooksRouter = require('./routes/allbooksRouter');
 const contactusRouter = require('./routes/contactusRouter');
 const newbookRouter = require('./routes/newbookRouter');
+const uploadRouter = require('./routes/uploadRouter');
 
 const mongoose = require('mongoose');
 
@@ -28,6 +29,16 @@ connect.then(() => console.log('Connected correctly to server'),
 );
 
 var app = express();
+
+// Secure traffic only
+app.all('*', (req, res, next) => {
+  if (req.secure) {
+    return next();
+  } else {
+      console.log(`Redirecting to: https://${req.hostname}:${app.get('secPort')}${req.url}`);
+      res.redirect(301, `https://${req.hostname}:${app.get('secPort')}${req.url}`);
+  }
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -48,6 +59,7 @@ app.use('/books', bookRouter);
 app.use('/allbooks', allbooksRouter);
 app.use('/newbook', newbookRouter);
 app.use('/contactus', contactusRouter)
+app.use('/csvUpload', uploadRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
