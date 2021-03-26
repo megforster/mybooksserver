@@ -1,15 +1,17 @@
 const express = require('express');
 const Book = require('../models/book');
 const authenticate = require('../authenticate');
+const cors = require('./cors');
 
 const newbookRouter = express.Router();
 
 newbookRouter.route('/')
-.get(authenticate.verifyUser,(req, res) => {
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, authenticate.verifyUser,(req, res) => {
     res.statusCode = 403;
     res.end('GET operation not supported on /newbook');
 })
-.post(authenticate.verifyUser,(req, res, next) => {
+.post(cors.corsWithOptions, authenticate.verifyUser,(req, res, next) => {
     req.body.reviewer = req.user._id
     Book.create(req.body)
     .then(book => {
@@ -20,11 +22,11 @@ newbookRouter.route('/')
     })
     .catch(err => next(err));
 })
-.put(authenticate.verifyUser,(req, res) => {
+.put(cors.corsWithOptions, authenticate.verifyUser,(req, res) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /newbook');
 })
-.delete(authenticate.verifyUser,(req, res) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser,(req, res) => {
     res.statusCode = 403;
     res.end('DELETE operation not supported on /newbook');
 });
