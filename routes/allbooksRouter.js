@@ -7,15 +7,16 @@ const allbooksRouter = express.Router();
 
 allbooksRouter.route('/')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+
 .get(cors.cors, authenticate.verifyUser,(req, res, next) => {
-    Book.find({"reviewer":req.user._id})
-    .populate('book.reviewer')
-    .then(book => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(book);
-    })
-    .catch(err => next(err));
+     Book.find({"reviewer":req.user._id})
+     .populate('book.reviewer')
+     .then(book => {
+         res.statusCode = 200;
+         res.setHeader('Content-Type', 'application/json');
+         res.json(book);
+     })
+     .catch(err => next(err));
 })
 .post(cors.corsWithOptions, authenticate.verifyUser,(req, res)=>{
     res.statusCode = 403;

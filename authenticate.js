@@ -19,6 +19,7 @@ var cookieExtractor = function(req){
     var token = null;
     if(req && req.cookies){
         token = req.cookies['token'];
+        //console.log("HERE")
     }
     return token
 }
@@ -31,6 +32,7 @@ exports.jwtPassport = passport.use(
     new JwtStrategy(
         opts,
         (jwt_payload, done) => {
+            //This doesn't even console.log
             console.log('JWT payload:', jwt_payload);
             User.findOne({_id: jwt_payload._id}, (err, user) => {
                 if (err) {
@@ -53,20 +55,26 @@ exports.facebookPassport = passport.use(
         }, 
         (accessToken, refreshToken, profile, done) => {
             User.findOne({facebookId: profile.id}, (err, user) => {
+                //console.log("What the fuck")
                 if (err) {
                     return done(err, false);
                 }
                 if (!err && user) {
+                    //console.log("!"+user)
+                    //es.cookie('user',User)
                     return done(null, user);
                 } else {
                     user = new User({ username: profile.displayName });
                     user.facebookId = profile.id;
                     user.firstname = profile.name.givenName;
                     user.lastname = profile.name.familyName;
+                    //console.log(user.facebookId)
                     user.save((err, user) => {
                         if (err) {
                             return done(err, false);
                         } else {
+                            //res.cookie('user',User)
+                            //console.log(user)
                             return done(null, user);
                         }
                     });
